@@ -8,7 +8,7 @@ A self-hosted REST API and web UI for searching torrents across multiple provide
 
 ## Features
 
-- Search torrents across 10 providers from a single API
+- Search torrents across 11 providers from a single API
 - **Combo search** — query all providers in parallel and merge results
 - Built-in web UI with provider selector, pagination, and magnet links
 - Automatic Cloudflare JS challenge bypass via [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr)
@@ -27,6 +27,7 @@ A self-hosted REST API and web UI for searching torrents across multiple provide
 | Nyaa.si | `nyaasi` |
 | The Pirate Bay | `piratebay` |
 | RARBG | `rarbg` |
+| TorrentDownloads | `torrentdownloads` |
 | TorrentProject | `torrentproject` |
 | YTS | `yts` |
 
