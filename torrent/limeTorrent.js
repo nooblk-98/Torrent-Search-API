@@ -1,5 +1,5 @@
 const cheerio = require('cheerio')
-const axios = require('axios')
+const request = require('./request')
 
 
 async function limeTorrent(query, page = '1') {
@@ -7,8 +7,10 @@ async function limeTorrent(query, page = '1') {
     const url = `https://www.limetorrents.pro/search/all/${query}/seeds/${page}/`;
     let html;
     try {
-        html = await axios.get(url, headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36"
+        html = await request(url, {
+            headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36"
+            }
         });
 
     } catch {

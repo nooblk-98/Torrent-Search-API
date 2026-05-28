@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    restart: unless-stopped
+    ports:
+      - "8191:8191"
+    environment:
+      - LOG_LEVEL=info
+      - TZ=UTC
+
+  app:
+    build: .
+    container_name: torrent-search-api
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - USE_FLARESOLVERR=true
+      - FLARESOLVERR_URL=http://flaresolverr:8191/v1
+    depends_on:
+      - flaresolverr

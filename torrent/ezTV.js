@@ -1,5 +1,5 @@
 const cheerio = require('cheerio');
-const axios = require('axios');
+const request = require('./request');
 
 
 async function ezTV(query) {
@@ -7,7 +7,7 @@ async function ezTV(query) {
     const url = 'https://eztv.re/search/' + query;
     let html;
     try {
-        html = await axios.get(url);
+        html = await request(url);
     } catch {
         return null;
     }

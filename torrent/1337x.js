@@ -1,12 +1,12 @@
 const cheerio = require('cheerio');
-const axios = require('axios');
+const request = require('./request');
 
 async function torrent1337x(query = '', page = '1') {
     const allTorrent = [];
     let html;
     const url = 'https://1337xx.to/search/' + query + '/' + page + '/';
     try {
-        html = await axios.get(url, {
+        html = await request(url, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Referer': 'https://1337xx.to/'
@@ -28,7 +28,7 @@ async function torrent1337x(query = '', page = '1') {
         const labels = ['Category', 'Type', 'Language', 'Size', 'UploadedBy', 'Downloads', 'LastChecked', 'DateUploaded', 'Seeders', 'Leechers'];
         let html;
         try {
-            html = await axios.get(element, {
+            html = await request(element, {
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Referer': 'https://1337xx.to/'

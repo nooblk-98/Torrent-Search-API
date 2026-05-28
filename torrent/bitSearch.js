@@ -1,12 +1,12 @@
 const cheerio = require('cheerio')
-const axios = require('axios')
+const request = require('./request')
 
 async function bitSearch(query, page = '1') {
     var ALLTORRENT = [];
     const url = "https://bitsearch.to/search?q=" + query + "&page=" + page + "&sort=seeders";
     let html;
     try {
-        html = await axios.get(url, {
+        html = await request(url, {
             headers: {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             }
