@@ -12,7 +12,7 @@ A self-hosted REST API and web UI for searching torrents across multiple provide
 
 - Search torrents across 11 providers from a single API
 - **Combo search** — query all providers in parallel and merge results
-- Built-in web UI with provider selector, pagination, and magnet links
+- Built-in web UI with search suggestions, sort controls, pagination, and one-click magnet copy
 - Cloudflare JS challenge bypass via [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr)
 - Dynamic provider loading — add or remove scrapers by dropping files into `torrent/`
 
@@ -61,7 +61,7 @@ Returns an array of available provider keywords.
 ### Search a provider
 
 ```
-GET /api/search/:provider/:query/:page?
+GET /api/:provider/:query/:page?
 ```
 
 | Parameter | Description |
@@ -73,7 +73,7 @@ GET /api/search/:provider/:query/:page?
 **Example:**
 
 ```
-GET /api/search/1337x/ubuntu/1
+GET /api/1337x/ubuntu/1
 ```
 
 ### Combo search
@@ -81,8 +81,16 @@ GET /api/search/1337x/ubuntu/1
 Queries all providers in parallel and returns merged results:
 
 ```
-GET /api/search/combo/:query/:page?
+GET /api/all/:query/:page?
 ```
+
+### Search suggestions
+
+```
+GET /api/suggest?q=:query
+```
+
+Returns up to 8 Google-powered search suggestions as a JSON string array.
 
 ### Response format
 
@@ -116,7 +124,13 @@ Setting `FLARESOLVERR_URL` implicitly enables FlareSolverr — `USE_FLARESOLVERR
 
 ## Web UI
 
-Opening `http://localhost:3001` loads the built-in search interface. Select a provider (or **combo** for all), enter a query, and browse results with direct magnet link support.
+Opening `http://localhost:3001` loads the built-in search interface.
+
+- **Search suggestions** — Google-powered autocomplete as you type
+- **All Sites** — search all 11 providers at once from the provider dropdown
+- **Sort controls** — sort results by Seeders, Leechers, Size, or Name
+- **Pagination** — Prev / Next buttons to browse pages
+- **Copy Magnet** — copies the magnet link to clipboard with one click
 
 ## Adding a Provider
 
