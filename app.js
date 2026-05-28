@@ -42,18 +42,9 @@ app.get("/api/suggest", async (req, res) => {
     const q = (req.query.q || '').trim();
     if (!q) return res.json([]);
     try {
-        const resp = await axios.get(`https://apibay.org/q.php?q=${encodeURIComponent(q)}&cat=0`, { timeout: 5000 });
-        const seen = new Set();
-        const suggestions = [];
-        for (const item of resp.data) {
-            if (!item.name || item.name === 'No results returned') continue;
-            const label = item.name.split(' ').slice(0, 5).join(' ');
-            if (!seen.has(label.toLowerCase())) {
-                seen.add(label.toLowerCase());
-                suggestions.push(label);
-            }
-            if (suggestions.length >= 8) break;
-        }
+        const resp = await axios.get(`https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}`, { timeout: 5000 });
+        // Response: ["query", ["suggestion1", "suggestion2", ...]]
+        const suggestions = (resp.data[1] || []).slice(0, 8);
         res.json(suggestions);
     } catch {
         res.json([]);
