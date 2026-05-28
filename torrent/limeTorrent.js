@@ -4,7 +4,7 @@ const request = require('./request')
 
 async function limeTorrent(query, page = '1') {
     var ALLTORRENT = [];
-    const url = `https://www.limetorrents.pro/search/all/${query}/seeds/${page}/`;
+    const url = `https://www.limetorrents.fun/search/all/${query}/seeds/${page}/`;
     let html;
     try {
         html = await request(url, {
@@ -33,7 +33,7 @@ async function limeTorrent(query, page = '1') {
                 "Seeders": $(element).find('td').eq(3).text().trim(),
                 "Leechers": $(element).find('td').eq(4).text().trim(),
                 "Torrent": $(element).find('div.tt-name a').attr('href'),
-                "Url": "https://www.limetorrents.pro" + $(element).find('div.tt-name a').next().attr('href')
+                "Url": "https://www.limetorrents.fun" + $(element).find('div.tt-name a').next().attr('href')
             }
             ALLTORRENT.push(torrent);
         }
