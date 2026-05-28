@@ -233,9 +233,7 @@ header h1 {
     <div class="search-container">
         <input type="text" id="query" class="form-control" placeholder="Enter torrent name...">
         <select id="website" class="form-select">
-            <option value="1337x">1337x</option>
-            <option value="yts">YTS</option>
-            <option value="torlock">Torlock</option>
+            <option value="">Loading providers...</option>
         </select>
         <input type="number" id="page" class="form-control" placeholder="Page (optional)" min="1">
         <button onclick="searchTorrents()">Search</button>
@@ -252,6 +250,20 @@ header h1 {
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        $(async function() {
+            const $select = $('#website');
+            try {
+                const resp = await fetch('/api/torrents');
+                const providers = await resp.json();
+                $select.empty();
+                providers.forEach(p => {
+                    $select.append(`<option value="${p}">${p}</option>`);
+                });
+            } catch {
+                $select.empty().append('<option value="">No providers available</option>');
+            }
+        });
+
         async function searchTorrents() {
             const query = $('#query').val();
             const website = $('#website').val();
@@ -259,10 +271,11 @@ header h1 {
             const resultsDiv = $('#results');
             const spinnerContainer = $('#spinner-container');
 
-            // Show the spinner
+            if (!website || !query) return;
+
             spinnerContainer.show();
 
-            let apiUrl = `https://itorrentsearch.vercel.app/api/${website}/${query}`;
+            let apiUrl = `/api/${website}/${query}`;
             if (page) {
                 apiUrl += `/${page}`;
             }
@@ -278,60 +291,24 @@ header h1 {
 
                 resultsDiv.empty();
 
-                if (website === '1337x') {
-                    data.forEach(torrent => {
-                        resultsDiv.append(
-                            `<div class="movie-card">
-                                <div class="movie-details">
-                                    <h5>${torrent.Name}</h5>
-                                    <p><strong>Category:</strong> ${torrent.Category || 'N/A'}</p>
-                                    <p><strong>Size:</strong> ${torrent.Size || 'N/A'}</p>
-                                    <p><strong>Seeders:</strong> ${torrent.Seeders || 'N/A'}</p>
-                                    <div class="button-container">
-                                        <a href="${torrent.Magnet}" class="btn-custom">Magnet</a>
-                                    </div>
+                data.forEach(torrent => {
+                    const magnet = torrent.Magnet || torrent.MagnetLink || '';
+                    const poster = torrent.Poster ? `<img src="${torrent.Poster}" alt="${torrent.Name}">` : '';
+                    resultsDiv.append(
+                        `<div class="movie-card">
+                            ${poster}
+                            <div class="movie-details">
+                                <h5>${torrent.Name || torrent.Title || 'N/A'}</h5>
+                                <p><strong>Size:</strong> ${torrent.Size || 'N/A'}</p>
+                                <p><strong>Seeders:</strong> ${torrent.Seeders || 'N/A'} | <strong>Leechers:</strong> ${torrent.Leechers || 'N/A'}</p>
+                                <div class="button-container">
+                                    ${magnet ? `<a href="${magnet}" class="btn-custom">Magnet</a>` : ''}
+                                    ${torrent.Url ? `<a href="${torrent.Url}" class="btn-custom" target="_blank">View</a>` : ''}
                                 </div>
-                            </div>`
-                        );
-                    });
-                } else if (website === 'yts') {
-                    data.forEach(movie => {
-                        resultsDiv.append(
-                            `<div class="movie-card">
-                                <img src="${movie.Poster}" alt="${movie.Name}">
-                                <div class="movie-details">
-                                    <h5>${movie.Name}</h5>
-                                    <p><strong>Released Date:</strong> ${movie.ReleasedDate || 'N/A'}</p>
-                                    <p><strong>Genre:</strong> ${movie.Genre || 'N/A'}</p>
-                                    <p><strong>Rating:</strong> ${movie.Rating || 'N/A'}</p>
-                                    <div class="button-container">
-                                        <a href="${movie.Url}" class="btn-custom">More Details</a>
-                                        ${movie.Files.map(file => 
-                                            `<a href="${file.Magnet}" class="btn-custom">${file.Quality}</a>`
-                                        ).join('')}
-                                    </div>
-                                </div>
-                            </div>`
-                        );
-                    });
-                } else if (website === 'torlock') {
-                    data.forEach(movie => {
-                        resultsDiv.append(
-                            `<div class="movie-card">
-                                <div class="movie-details">
-                                    <h5>${movie.Name}</h5>
-                                    <p><strong>DateUploaded:</strong> ${movie.DateUploaded || 'N/A'}</p>
-                                    <p><strong>Size:</strong> ${movie.Size || 'N/A'}</p>
-                                    <p><strong>Seeders:</strong> ${movie.Leechers || 'N/A'}</p>
-                                    <div class="button-container">
-                                        <a href="${torrent.Magnet}" class="btn-custom">Magnet</a>
-                                        <a href="${torrent.Torrent}" class="btn-custom">Torrent</a>
-                                    </div>
-                                </div>
-                            </div>`
-                        );
-                    });
-                }
+                            </div>
+                        </div>`
+                    );
+                });
             } catch (error) {
                 resultsDiv.html('<div class="text-center text-danger col-12">Failed to load results.</div>');
             } finally {
