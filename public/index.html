@@ -484,7 +484,11 @@ header h1 {
                 return;
             }
 
-            allResults = data;
+            allResults = data.filter(t => t.Name && t.Name.trim() !== '');
+            if (!allResults.length) {
+                $('#results').html('<div class="text-center col-12">No results found.</div>');
+                return;
+            }
             renderResults();
             renderPagination();
             $('#sort-bar').addClass('visible');

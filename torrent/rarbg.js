@@ -30,6 +30,7 @@ async function rarbg(query, page = '1') {
             data.Leechers = $(td).eq(6).text();
             data.UploadedBy = $(td).eq(7).text();
             data.Url = "https://rargb.to" + $(td).eq(1).find('a').attr('href');
+            if (!data.Name) return;
             ALLURLARRAY.push(data.Url);
             ALLTORRENT.push(data);
 
