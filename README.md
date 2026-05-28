@@ -1,18 +1,19 @@
 # Torrent Search API
 
-A self-hosted REST API and web UI for searching torrents across multiple providers simultaneously. Built with Node.js and Express, with optional Cloudflare bypass via FlareSolverr.
+A self-hosted REST API and web UI for searching torrents across multiple providers simultaneously. Built with Node.js and Express, with Cloudflare bypass via FlareSolverr.
 
-[![Node.js](https://img.shields.io/badge/Node.js->=20-3c873a?style=flat-square)](https://nodejs.org)
 [![License](https://img.shields.io/badge/License-ISC-blue?style=flat-square)](LICENSE)
-[![Docker](https://img.shields.io/badge/Docker-ready-2496ed?style=flat-square)](Dockerfile)
+[![Docker](https://img.shields.io/badge/Docker-required-2496ed?style=flat-square)](docker-compose.yml)
+
+> [!IMPORTANT]
+> This project requires Docker. FlareSolverr must run alongside the API to bypass Cloudflare protection on most providers.
 
 ## Features
 
 - Search torrents across 11 providers from a single API
 - **Combo search** — query all providers in parallel and merge results
 - Built-in web UI with provider selector, pagination, and magnet links
-- Automatic Cloudflare JS challenge bypass via [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr)
-- Docker Compose setup with FlareSolverr bundled
+- Cloudflare JS challenge bypass via [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr)
 - Dynamic provider loading — add or remove scrapers by dropping files into `torrent/`
 
 ## Providers
@@ -35,30 +36,17 @@ A self-hosted REST API and web UI for searching torrents across multiple provide
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org) >= 20
-- [Docker](https://www.docker.com) (optional)
+- [Docker](https://www.docker.com) and [Docker Compose](https://docs.docker.com/compose/)
 
-### Run locally
+### Deploy
 
 ```bash
 git clone https://github.com/NoobLk/Torrent-Search-API.git
 cd Torrent-Search-API
-npm install
-node app.js
-```
-
-The server starts on `http://localhost:3001`.
-
-### Run with Docker Compose
-
-The recommended approach — starts the API and FlareSolverr together:
-
-```bash
 docker compose up -d
 ```
 
-> [!NOTE]
-> FlareSolverr is required to bypass Cloudflare protection on providers like 1337x and GloDLS. Without it, those providers may return empty results.
+The API and FlareSolverr start together. The API is available at `http://localhost:3001`.
 
 ## API Reference
 
