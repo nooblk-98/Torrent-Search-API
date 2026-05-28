@@ -1,228 +1,163 @@
-<h1 align='center'>Torrent Searcher API with Website 🔥</h1>
+# Torrent Search API
 
-<div align='center'>
+A self-hosted REST API and web UI for searching torrents across multiple providers simultaneously. Built with Node.js and Express, with optional Cloudflare bypass via FlareSolverr.
 
-###  New Torrent API [ArcTorrent](https://github.com/theriturajps/ArcTorrent) (Available!)
+[![Node.js](https://img.shields.io/badge/Node.js->=20-3c873a?style=flat-square)](https://nodejs.org)
+[![License](https://img.shields.io/badge/License-ISC-blue?style=flat-square)](LICENSE)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ed?style=flat-square)](Dockerfile)
 
-</div>
+## Features
 
+- Search torrents across 10 providers from a single API
+- **Combo search** — query all providers in parallel and merge results
+- Built-in web UI with provider selector, pagination, and magnet links
+- Automatic Cloudflare JS challenge bypass via [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr)
+- Docker Compose setup with FlareSolverr bundled
+- Dynamic provider loading — add or remove scrapers by dropping files into `torrent/`
 
-> Unofficial API for scraping torrents from 1337x, Piratebay, Eztv, Nyaasi, Torlock, YTS, Torrent Galaxy, Rarbg, ~~Zooqle~~, KickAss, Bitsearch, Glodls, ~~MagnetDL~~, LimeTorrent, TorrentFunk, TorrentProject and ~~Ettv~~.
+## Providers
 
----
+| Provider | Keyword |
+|---|---|
+| 1337x | `1337x` |
+| BitSearch | `bitsearch` |
+| EZTV | `eztv` |
+| GloDLS | `glodls` |
+| LimeTorrents | `limetorrent` |
+| Nyaa.si | `nyaasi` |
+| The Pirate Bay | `piratebay` |
+| RARBG | `rarbg` |
+| TorrentProject | `torrentproject` |
+| YTS | `yts` |
 
-## ⚙️How to install?
+## Getting Started
 
-```sh
+### Prerequisites
 
-# Clone the repo
-$ git clone https://github.com/theriturajps/Torrent-Search-API.git
+- [Node.js](https://nodejs.org) >= 20
+- [Docker](https://www.docker.com) (optional)
 
-# Install Depedencies
-$ npm install
+### Run locally
 
-# Start the server
-$ npm start
-
+```bash
+git clone https://github.com/NoobLk/Torrent-Search-API.git
+cd Torrent-Search-API
+npm install
+node app.js
 ```
 
----
+The server starts on `http://localhost:3001`.
 
-## 🤔How it works?
+### Run with Docker Compose
 
-```
-/api/{keyword}/{query}/{page(optional)}
+The recommended approach — starts the API and FlareSolverr together:
 
-```
-
----
-
-## 🔏Keywords
-
-| Website        | Keyword                                        | Url                               | Example                                                                                         |
-| -------------- | ---------------------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------- |
-| 1337x          | 1337x                                          | <https://1337xx.to>                 | [/api/1337x/avengers](https://itorrentsearch.vercel.app/api/1337x/avengers)                   |
-| Yts            | yts                                            | <https://yts.mx>                    | [/api/yts/avengers](https://itorrentsearch.vercel.app/api/yts/avengers)                       |
-| Eztv           | eztv                                           | <https://eztv.re>                   | [/api/eztv/avengers](https://itorrentsearch.vercel.app/api/eztv/avengers)                     |
-| Torrent Galaxy | tgx                                            | <https://torrentgalaxy.to>          | [/api/tgx/avengers](https://itorrentsearch.vercel.app/api/tgx/avengers)                       |
-| Torlock        | torlock                                        | <https://www.torlock.com>           | [/api/torlock/avengers](https://itorrentsearch.vercel.app/api/torlock/avengers)               |
-| PirateBay      | piratebay                                      | <https://thehiddenbay.com>          | [/api/piratebay/avengers](https://itorrentsearch.vercel.app/api/piratebay/avengers)           |
-| Nyaasi      | nyaasi                                         | <https://nyaa.si>                   | [/api/nyaasi/umaru](https://itorrentsearch.vercel.app/api/nyaasi/umaru)                       |
-| Rarbg          | rarbg                                          | <https://rargb.to>                  | [/api/rarbg/avengers](https://itorrentsearch.vercel.app/api/rarbg/avengers)                   |
-| ~~Ettv~~           | ~~ettv~~                                           | ~~<https://www.ettvcentral.com>~~       | DEAD                     |
-| ~~Zooqle~~         | ~~zooqle~~                                         | ~~<https://zooqle.com>~~                | DEAD                 |
-| KickAss        | kickass                                        | <https://kickasstorrents.to>        | [/api/kickass/avengers](https://itorrentsearch.vercel.app/api/kickass/avengers)               |
-| Bitsearch      | bitsearch                                      | <https://bitsearch.to>              | [/api/bitsearch/avengers](https://itorrentsearch.vercel.app/api/bitsearch/avengers)           |
-| Glodls         | glodls                                         | <https://glodls.to/home.php>        | [/api/glodls/avengers](https://itorrentsearch.vercel.app/api/glodls/avengers)                 |
-| ~~MagnetDL~~       | ~~magnetdl~~                                       | ~~<https://www.magnetdl.com>~~          | DEAD            |
-| LimeTorrent    | limetorrent                                    | <https://www.limetorrents.pro/home> | [/api/limetorrent/avengers](https://itorrentsearch.vercel.app/api/limetorrent/avengers)       |
-| TorrentFunk    | torrentfunk                                    | <https://www.torrentfunk.com>       | [/api/torrentfunk/avengers](https://itorrentsearch.vercel.app/api/torrentfunk/avengers)       |
-| TorrentProject | torrentproject                                 | <https://torrentproject2.com>       | [/api/torrentproject/avengers](https://itorrentsearch.vercel.app/api/torrentproject/avengers) |
-| all            | all (It will retrieve torrent from every site) |                                   | [/api/all/avengers](https://itorrentsearch.vercel.app/api/all/avengers)                       |
-
----
-
-## 🗒️Example
-
-#### 📤Request
-
-```
-/api/1337x/avengers
+```bash
+docker compose up -d
 ```
 
-#### 📥Response
+> [!NOTE]
+> FlareSolverr is required to bypass Cloudflare protection on providers like 1337x and GloDLS. Without it, those providers may return empty results.
+
+## API Reference
+
+### List providers
+
+```
+GET /api/torrents
+```
+
+Returns an array of available provider keywords.
+
+### Search a provider
+
+```
+GET /api/search/:provider/:query/:page?
+```
+
+| Parameter | Description |
+|---|---|
+| `provider` | Provider keyword (see table above) |
+| `query` | Search term |
+| `page` | Page number (optional, default: `1`) |
+
+**Example:**
+
+```
+GET /api/search/1337x/ubuntu/1
+```
+
+### Combo search
+
+Queries all providers in parallel and returns merged results:
+
+```
+GET /api/search/combo/:query/:page?
+```
+
+### Response format
 
 ```json
 [
   {
-    "Name": "Avengers: Infinity War (2018) [BluRay] [720p] [YTS] [YIFY]",
-    "Magnet": "magnet:?xt=urn:btih:EA17E6BE92962A403AC1C638D2537DCF1E564D26&dn=Avengers%3A+Infinity+War+%282018%29+%5BBluRay%5D+%5B720p%5D+%5BYTS%5D+%5BYIFY%5D&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969%2Fannounce&tr=udp%3A%2F%2F9.rarbg.com%3A2710%2Fannounce&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.internetwarriors.net%3A1337&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.zer0day.to%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969%2Fannounce&tr=udp%3A%2F%2Fcoppersurfer.tk%3A6969%2Fannounce",
-    "Poster": "https://lx1.dyncdn.cc/cdn/ab/ab366d3d14d0af54fa6da1543a618251.jpg",
-    "Category": "Movies",
-    "Type": "HD",
-    "Language": "English",
-    "Size": "1.2 GB",
-    "UploadedBy": " YTSAGx",
-    "Downloads": "125311",
-    "LastChecked": "2 years ago",
-    "DateUploaded": "2 years ago",
-    "Seeders": "8828",
-    "Leechers": "4502",
-    "Url": "https://1337x.to/torrent/3148366/Avengers-Infinity-War-2018-BluRay-720p-YTS-YIFY/"
+    "Name": "Ubuntu 24.04 LTS Desktop amd64",
+    "Size": "5.8 GB",
+    "Seeders": "1200",
+    "Leechers": "300",
+    "DateUploaded": "2024-04-25",
+    "Magnet": "magnet:?xt=...",
+    "Url": "https://1337x.to/torrent/...",
+    "UploadedBy": "ubuntu"
   }
 ]
 ```
 
----
+> [!TIP]
+> Field availability varies by provider. Always handle `null` or missing fields in your client.
 
-#### 📤Request
+## Configuration
 
-```
-/api/tgx/avengers/1
-```
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | `3001` | Port the server listens on |
+| `USE_FLARESOLVERR` | — | Set to `true` to route all requests through FlareSolverr |
+| `FLARESOLVERR_URL` | `http://flaresolverr:8191/v1` | FlareSolverr endpoint |
 
-#### 📥Response
+Setting `FLARESOLVERR_URL` implicitly enables FlareSolverr — `USE_FLARESOLVERR` is not required separately.
 
-```json
-[
-  {
-    "Poster": "https://img.picturegalaxy.org/data/cover/h/W/hWOmQgIu5E.jpg",
-    "Category": "Movies : HD",
-    "Name": "Avengers.Endgame.2019.Open.Matte.Upscaled.BDRip.2160p.Eng.TrueHD.DD5.1.gerald99",
-    "Url": "https://torrentgalaxy.to/torrent/14346596/Avengers-Endgame-2019-Open-Matte-Upscaled-BDRip-2160p-Eng-TrueHD-DD5-1-gerald99",
-    "Torrent": "https://watercache.nanobytes.org/get/925d6bbd7faf6a3525aa3adcd0d8b560a671f3e6/Avengers.Endgame.2019.Open.Matte.Upscaled.BDRip.2160p.Eng.TrueHD.DD5.1.gerald99",
-    "Magnet": "magnet:?xt=urn:btih:925d6bbd7faf6a3525aa3adcd0d8b560a671f3e6&dn=Avengers.Endgame.2019.Open.Matte.Upscaled.BDRip.2160p.Eng.TrueHD.DD5.1.gerald99&tr=udp%3A%2F%2Ftracker.tiny-vps.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ffasttracker.foreverpirates.co%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fexplodie.org%3A6969%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.cyberia.is%3A6969%2Fannounce&tr=udp%3A%2F%2Fipv4.tracker.harry.lu%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.uw0.xyz%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.dler.org%3A6969%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2710%2Fannounce",
-    "UploadedBy": "gerald99",
-    "Size": "34.62 GB",
-    "Seeders": "6",
-    "Leechers": "7",
-    "DateUploaded": "10/04/21 10:46"
-  }
+## Web UI
 
- ]
-```
+Opening `http://localhost:3001` loads the built-in search interface. Select a provider (or **combo** for all), enter a query, and browse results with direct magnet link support.
 
----
+## Adding a Provider
 
-#### 📤Request
+Create a file in `torrent/` that exports an async function:
 
-```
-/api/nyaasi/jujutsu kaisen/2
+```js
+async function myProvider(query, page = '1') {
+    // scrape results and return an array of objects
+}
+
+module.exports = myProvider;
 ```
 
-#### 📥Response
+The file name (without `.js`) is used as the provider keyword automatically. Override it with:
 
-```json
-[
-  {
-    "Category": "Anime - English-translated",
-    "Name": "[ok] JUJUTSU KAISEN - 01 [Multi-Subs] [1080p].mkv",
-    "Url": "https://nyaa.si/view/1285645",
-    "Torrent": "https://nyaa.si/download/1285645.torrent",
-    "Size": "1.4 GiB",
-    "DateUploaded": "2020-10-02 17:48",
-    "Seeders": "25",
-    "Leechers": "0",
-    "Downloads": "710",
-    "Magnet": "magnet:?xt=urn:btih:986f957243b697d238108d1fa0ba1d0de6d602aa&dn=%5Bok%5D%20JUJUTSU%20KAISEN%20-%2001%20%5BMulti-Subs%5D%20%5B1080p%5D.mkv&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce"
-  }
-]
+```js
+module.exports.customName = 'my-provider';
 ```
 
-#### 📤Request
+## Project Structure
 
 ```
-/api/torrents
+├── app.js                  # Express server and routes
+├── public/
+│   └── index.html          # Web UI
+├── torrent/
+│   ├── torrents.js         # Dynamic provider loader
+│   ├── COMBO.js            # Parallel multi-provider search
+│   ├── request.js          # HTTP client with FlareSolverr fallback
+│   └── *.js                # Provider scrapers
+├── Dockerfile
+└── docker-compose.yml      # App + FlareSolverr stack
 ```
-
-#### 📥Response
-
-```json
-[
-  "1337x",
-  "bitsearch",
-  "ettv",
-  "eztv",
-  "glodls",
-  "kickass",
-  "limetorrent",
-  "magnetdl",
-  "nyaasi",
-  "piratebay",
-  "rarbg",
-  "tgx",
-  "torlock",
-  "torrentfunk",
-  "torrentproject",
-  "yts",
-  "zooqle"
-]
-```
-
----
-
-## 🔍Want to try this API ?
-
-```
-https://itorrentsearch.vercel.app/api/{keyword}/{query}/{page(optional)}
-```
-
-🔰Example
-```
-https://itorrentsearch.vercel.app/api/1337x/avengers/3
-```
-
----
-
-## 🌐Want to try Website + API ?
-
-#### Coming soon ...
-
----
-
-## 🛠️Deployment
-
-### Deploy on VPS
-
-You can fork the repo and deploy on VPS
-
-### Deploy on Heroku
-
-[![Deploy](https://svgshare.com/i/dxN.svg)](https://heroku.com/deploy?template=https://github.com/theriturajps/Torrent-Search-API)
-
-### Deploy on Vercel
-
-[![Deploy with Vercel](https://svgshare.com/i/dzC.svg)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Ftheriturajps%2FTorrent-Search-API%2Ftree%2Fvercel)
-
-### Deploy on Netlify (API + Torrent Searcher Website)
-
-[![Deploy on netlify](https://svgshare.com/i/dwj.svg)](https://github.com/theriturajps/Torrent-Search-API/tree/netlify)
-
----
-
-## ©️ Credit
-
-| Contributor | Added Features |
-| ----------- | ----------- |
-| [theriturajps](https://github.com/theriturajps) | Built [Torrents-Api](https://github.com/theriturajps/Torrent-Search-API) + Made deployable with Heroku |
-| [Airplanegobrr](https://github.com/airplanegobrr) | Cleaned code + removed dead torrent hosts |
