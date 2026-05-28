@@ -257,6 +257,29 @@ header h1 {
     transform: scale(1.05);
 }
 
+.pagination-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px 40px;
+}
+
+.pagination-bar button {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 7px 16px;
+    font-size: var(--font-size-small);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font-family);
+}
+
+.pagination-bar button:hover { border-color: var(--primary-color); color: var(--primary-color); }
+.pagination-bar button.current { background: var(--primary-color); color: #fff; border-color: var(--primary-color); font-weight: 600; }
+.pagination-bar button:disabled { opacity: 0.4; cursor: default; }
+
 .spinner-container {
     position: fixed;
     top: 0;
@@ -308,7 +331,6 @@ header h1 {
             <ul id="suggestions"></ul>
         </div>
         <select id="website" class="form-select"></select>
-        <input type="number" id="page" class="form-control" placeholder="Page" min="1" style="flex:0;width:80px;">
         <button onclick="searchTorrents()">Search</button>
     </div>
 
@@ -324,6 +346,8 @@ header h1 {
 
     <div id="results" class="movie-grid"></div>
 
+    <div id="pagination" class="pagination-bar"></div>
+
     <div id="spinner-container" class="spinner-container" style="display: none;">
         <div class="spinner"></div>
     </div>
@@ -332,6 +356,7 @@ header h1 {
     <script>
     let allResults = [];
     let currentSort = { key: 'seeders', dir: 'desc' };
+    let currentPage = 1;
     let suggestTimer = null;
     let suggestionIndex = -1;
 
@@ -435,20 +460,20 @@ header h1 {
     });
 
     // Search
-    async function searchTorrents() {
+    async function searchTorrents(page = 1) {
         const query = $('#query').val().trim();
         const website = $('#website').val();
-        const page = $('#page').val();
         if (!website || !query) return;
 
+        currentPage = page;
         hideSuggestions();
         $('#spinner-container').show();
         $('#results').empty();
+        $('#pagination').empty();
         $('#sort-bar').removeClass('visible');
         $('#results-info').hide();
 
-        let apiUrl = `/api/${encodeURIComponent(website)}/${encodeURIComponent(query)}`;
-        if (page) apiUrl += `/${page}`;
+        const apiUrl = `/api/${encodeURIComponent(website)}/${encodeURIComponent(query)}/${page}`;
 
         try {
             const response = await fetch(apiUrl);
@@ -461,12 +486,23 @@ header h1 {
 
             allResults = data;
             renderResults();
+            renderPagination();
             $('#sort-bar').addClass('visible');
         } catch {
             $('#results').html('<div class="text-center text-danger col-12">Failed to load results.</div>');
         } finally {
             $('#spinner-container').hide();
         }
+    }
+
+    function renderPagination() {
+        const $p = $('#pagination').empty();
+        const prev = $('<button>&#8592; Prev</button>').prop('disabled', currentPage <= 1)
+            .on('click', () => { searchTorrents(currentPage - 1); window.scrollTo(0, 0); });
+        const curr = $('<button>').text(`Page ${currentPage}`).addClass('current').prop('disabled', true);
+        const next = $('<button>Next &#8594;</button>')
+            .on('click', () => { searchTorrents(currentPage + 1); window.scrollTo(0, 0); });
+        $p.append(prev, curr, next);
     }
 
     // Sorting
