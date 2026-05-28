@@ -354,6 +354,7 @@ header h1 {
             const resp = await fetch('/api/torrents');
             const providers = await resp.json();
             $select.empty();
+            $select.append('<option value="all">All Sites</option>');
             providers.forEach(p => $select.append(`<option value="${p}">${p}</option>`));
         } catch {
             $select.empty().append('<option value="">No providers available</option>');
