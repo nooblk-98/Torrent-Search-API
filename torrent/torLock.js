@@ -1,14 +1,14 @@
 const cheerio = require('cheerio');
-const axios = require('axios');
+const request = require('./request');
 
 async function torLock(query = '', page = '1') {
 
     const ALLTORRENT = [];
     const ALLURL = []
-    const url = encodeURI('https://www.torlock.com/all/torrents/' + query + '/' + page + '.html');
+    const url = encodeURI('https://en.torlock-official.live/all/torrents/' + query + '/' + page + '.html');
     let html;
     try {
-        html = await axios.get(url);
+        html = await request(url);
     } catch (error) {
         return null;
     }
@@ -18,7 +18,7 @@ async function torLock(query = '', page = '1') {
     $('.table tbody tr').each((i, element) => {
 
         if (i > 3) {
-            let url = "https://www.torlock.com" + $(element).find('td').eq(0).find('div a').attr('href');
+            let url = "https://en.torlock-official.live" + $(element).find('td').eq(0).find('div a').attr('href');
             ALLURL.push(url);
             let torrent = {
                 'Name': $(element).find('td').eq(0).find('div a b').text().trim(),
@@ -39,8 +39,10 @@ async function torLock(query = '', page = '1') {
             if (ALLTORRENT[i]['Url'] === url) {
                 let html;
                 try {
-                    html = await axios.get(url, headers = {
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36"
+                    html = await request(url, {
+                        headers: {
+                            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36"
+                        }
                     });
                 } catch {
                     return;

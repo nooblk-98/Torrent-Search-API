@@ -1,5 +1,5 @@
 const cheerio = require('cheerio');
-const axios = require('axios');
+const request = require('./request');
 
 async function torrentGalaxy(query = '', page = '0') {
 
@@ -11,10 +11,10 @@ async function torrentGalaxy(query = '', page = '0') {
         }
     }
     const allTorrents = [];
-    const url = "https://torrentgalaxy.to/torrents.php?search=" + query + "&sort=id&order=desc&page=" + page;
+    const url = "https://torrentgalaxy.hair/torrents.php?search=" + query + "&sort=id&order=desc&page=" + page;
     let html;
     try{
-        html = await axios.get(url);
+        html = await request(url);
     }catch{
         return null;
     }
@@ -31,7 +31,7 @@ async function torrentGalaxy(query = '', page = '0') {
             data.Poster = "";
         }
         data.Category = $(element).find(":nth-child(1) a small").text();
-        data.Url = "https://torrentgalaxy.to" + $(element).find("a.txlight").attr('href');
+        data.Url = "https://torrentgalaxy.hair" + $(element).find("a.txlight").attr('href');
         data.UploadedBy = $(element).find(':nth-child(7) span a span').text();
         data.Size = $(element).find(':nth-child(8)').text();
         data.Seeders = $(element).find(':nth-child(11) span font:nth-child(1)').text();

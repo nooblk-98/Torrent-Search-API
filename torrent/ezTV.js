@@ -4,7 +4,7 @@ const request = require('./request');
 
 async function ezTV(query) {
     let allTorrents = [];
-    const url = 'https://eztv.re/search/' + query;
+    const url = 'https://eztv.wf/search/' + query;
     let html;
     try {
         html = await request(url);
@@ -24,7 +24,7 @@ async function ezTV(query) {
                 'Size': $(element).find('td').eq(3).text(),
                 'DateUploaded': $(element).find('td').eq(4).text(),
                 'Seeders': $(element).find('td').eq(5).text() || '',
-                'Url': "https://eztv.io" + url,
+                'Url': "https://eztv.wf" + url,
                 'Torrent': $(element).find('td').eq(2).find('a').eq(1).attr('href'),
                 'Magnet': $(element).find('td').eq(2).find('a').attr('href')
             }

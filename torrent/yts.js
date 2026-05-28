@@ -1,6 +1,5 @@
 const cheerio = require('cheerio');
-const axios = require('axios');
-
+const request = require('./request');
 
 
 async function yts(query, page = '1') {
@@ -8,14 +7,16 @@ async function yts(query, page = '1') {
     let all = []
     let ALLURL = [];
     if (page === '' || page === '1') {
-        var url = "https://yts.mx/browse-movies/" + query + "/all/all/0/latest/0/all"
+        var url = "https://yts.lu/browse-movies/" + query + "/all/all/0/latest/0/all"
     } else {
-        var url = "https://yts.mx/browse-movies/" + query + "/all/all/0/latest/0/all?page=" + page;
+        var url = "https://yts.lu/browse-movies/" + query + "/all/all/0/latest/0/all?page=" + page;
     }
     let html;
     try {
-        html = await axios.get(url, headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36"
+        html = await request(url, {
+            headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            }
         });
     } catch {
         return null;
@@ -42,7 +43,11 @@ async function yts(query, page = '1') {
         };
         let html;
         try {
-            html = await axios.get(url);
+            html = await request(url, {
+                headers: {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                }
+            });
         } catch {
             return;
         }
@@ -78,9 +83,6 @@ async function yts(query, page = '1') {
 
     return all;
 
-
-
 }
-
 
 module.exports = yts

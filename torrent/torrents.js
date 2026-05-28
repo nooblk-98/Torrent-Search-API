@@ -1,7 +1,7 @@
 const path = require("path")
 const fs = require("fs")
 
-let ignored = ["torrents.js", "COMBO.js", "request.js"]
+let ignored = ["torrents.js", "COMBO.js", "request.js", "ettv.js"]
 
 function getTorrents() {
     const torrentFiles = fs.readdirSync(__dirname).filter((v) => !ignored.includes(v))
