@@ -57,6 +57,14 @@ header h1 {
     padding: 20px;
     background-color: #fff;
     box-shadow: 0 2px 5px var(--box-shadow-light);
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.search-wrapper {
+    position: relative;
+    flex: 2;
+    min-width: 200px;
 }
 
 .search-container input,
@@ -65,8 +73,12 @@ header h1 {
     font-size: var(--font-size-base);
     border-radius: var(--border-radius);
     border: 1px solid var(--border-color);
-    margin-right: 10px;
+    width: 100%;
+}
+
+.search-container select {
     flex: 1;
+    min-width: 130px;
 }
 
 .search-container button {
@@ -78,6 +90,7 @@ header h1 {
     border-radius: var(--border-radius);
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
+    white-space: nowrap;
 }
 
 .search-container button:hover {
@@ -85,13 +98,83 @@ header h1 {
     transform: scale(1.05);
 }
 
+/* Suggestions dropdown */
+#suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    box-shadow: 0 4px 8px var(--box-shadow-light);
+    z-index: 100;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+#suggestions li {
+    padding: 9px 12px;
+    cursor: pointer;
+    font-size: var(--font-size-small);
+    list-style: none;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+#suggestions li:last-child { border-bottom: none; }
+#suggestions li:hover, #suggestions li.active { background-color: #e8f0fe; color: var(--primary-color); }
+
+/* Sort bar */
+.sort-bar {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: #fff;
+    border-top: 1px solid #eee;
+    flex-wrap: wrap;
+}
+
+.sort-bar.visible { display: flex; }
+
+.sort-bar span {
+    font-size: var(--font-size-small);
+    color: var(--text-secondary-color);
+    font-weight: 500;
+}
+
+.sort-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: var(--font-size-small);
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-color);
+}
+
+.sort-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+.sort-btn.active { background-color: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+.sort-btn .arrow { font-size: 0.7rem; margin-left: 3px; }
+
+.results-info {
+    text-align: center;
+    padding: 10px;
+    font-size: var(--font-size-small);
+    color: var(--text-secondary-color);
+    display: none;
+}
+
 .movie-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 15px;
     max-width: 1200px;
-    margin: 40px auto;
-    padding: 20px;
+    margin: 20px auto;
+    padding: 0 20px 40px;
 }
 
 .movie-card {
@@ -119,9 +202,7 @@ header h1 {
     transition: opacity 0.3s;
 }
 
-.movie-card img:hover {
-    opacity: 0.8;
-}
+.movie-card img:hover { opacity: 0.8; }
 
 .movie-details {
     padding: 10px;
@@ -204,23 +285,14 @@ header h1 {
 }
 
 @media (max-width: 768px) {
-    header h1 {
-        font-size: var(--header-font-size-mobile);
-    }
+    header h1 { font-size: var(--header-font-size-mobile); }
 
-    .search-container {
-        flex-direction: column;
-        padding: 15px;
-    }
+    .search-container { flex-direction: column; padding: 15px; }
 
-    .search-container input,
+    .search-wrapper,
     .search-container select,
-    .search-container button {
-        margin-bottom: 10px;
-        width: 100%;
-    }
+    .search-container button { width: 100%; }
 }
-
     </style>
 </head>
 
@@ -231,90 +303,234 @@ header h1 {
     </header>
 
     <div class="search-container">
-        <input type="text" id="query" class="form-control" placeholder="Enter torrent name...">
-        <select id="website" class="form-select">
-            <option value="">Loading providers...</option>
-        </select>
-        <input type="number" id="page" class="form-control" placeholder="Page (optional)" min="1">
+        <div class="search-wrapper">
+            <input type="text" id="query" class="form-control" placeholder="Enter torrent name..." autocomplete="off">
+            <ul id="suggestions"></ul>
+        </div>
+        <select id="website" class="form-select"></select>
+        <input type="number" id="page" class="form-control" placeholder="Page" min="1" style="flex:0;width:80px;">
         <button onclick="searchTorrents()">Search</button>
     </div>
 
-    <div id="results" class="movie-grid">
-        <!-- Movie cards will be generated here -->
+    <div class="sort-bar" id="sort-bar">
+        <span>Sort by:</span>
+        <button class="sort-btn active" data-sort="seeders">Seeders <span class="arrow">▼</span></button>
+        <button class="sort-btn" data-sort="leechers">Leechers <span class="arrow">▼</span></button>
+        <button class="sort-btn" data-sort="size">Size <span class="arrow">▼</span></button>
+        <button class="sort-btn" data-sort="name">Name <span class="arrow">▼</span></button>
     </div>
 
-    <!-- Spinner container for loading state -->
+    <div class="results-info" id="results-info"></div>
+
+    <div id="results" class="movie-grid"></div>
+
     <div id="spinner-container" class="spinner-container" style="display: none;">
         <div class="spinner"></div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(async function() {
-            const $select = $('#website');
-            try {
-                const resp = await fetch('/api/torrents');
-                const providers = await resp.json();
-                $select.empty();
-                providers.forEach(p => {
-                    $select.append(`<option value="${p}">${p}</option>`);
-                });
-            } catch {
-                $select.empty().append('<option value="">No providers available</option>');
+    let allResults = [];
+    let currentSort = { key: 'seeders', dir: 'desc' };
+    let suggestTimer = null;
+    let suggestionIndex = -1;
+
+    // Load providers
+    $(async function () {
+        const $select = $('#website');
+        try {
+            const resp = await fetch('/api/torrents');
+            const providers = await resp.json();
+            $select.empty();
+            providers.forEach(p => $select.append(`<option value="${p}">${p}</option>`));
+        } catch {
+            $select.empty().append('<option value="">No providers available</option>');
+        }
+    });
+
+    // Search suggestions (debounced, via PirateBay suggest API)
+    $('#query').on('input', function () {
+        const q = $(this).val().trim();
+        clearTimeout(suggestTimer);
+        suggestionIndex = -1;
+        if (q.length < 2) { hideSuggestions(); return; }
+        suggestTimer = setTimeout(() => fetchSuggestions(q), 280);
+    });
+
+    async function fetchSuggestions(q) {
+        try {
+            const resp = await fetch(`https://apibay.org/q.php?q=${encodeURIComponent(q)}&cat=0`);
+            const data = await resp.json();
+            // apibay returns torrent objects; extract unique name prefixes as suggestions
+            const seen = new Set();
+            const suggestions = [];
+            for (const item of data) {
+                if (!item.name || item.name === 'No results returned') continue;
+                // shorten to first few words for cleaner suggestions
+                const words = item.name.split(' ').slice(0, 5).join(' ');
+                if (!seen.has(words.toLowerCase())) {
+                    seen.add(words.toLowerCase());
+                    suggestions.push(words);
+                }
+                if (suggestions.length >= 8) break;
             }
+            renderSuggestions(suggestions);
+        } catch {
+            hideSuggestions();
+        }
+    }
+
+    function renderSuggestions(items) {
+        const $list = $('#suggestions').empty();
+        if (!items.length) { hideSuggestions(); return; }
+        items.forEach(text => {
+            $('<li>').text(text).on('mousedown', function () {
+                $('#query').val($(this).text());
+                hideSuggestions();
+                searchTorrents();
+            }).appendTo($list);
+        });
+        $list.show();
+    }
+
+    function hideSuggestions() {
+        $('#suggestions').hide().empty();
+        suggestionIndex = -1;
+    }
+
+    // Keyboard navigation for suggestions
+    $('#query').on('keydown', function (e) {
+        const $items = $('#suggestions li');
+        if (!$items.length) {
+            if (e.key === 'Enter') searchTorrents();
+            return;
+        }
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            suggestionIndex = Math.min(suggestionIndex + 1, $items.length - 1);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            suggestionIndex = Math.max(suggestionIndex - 1, -1);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (suggestionIndex >= 0) {
+                $('#query').val($items.eq(suggestionIndex).text());
+                hideSuggestions();
+                searchTorrents();
+            } else {
+                hideSuggestions();
+                searchTorrents();
+            }
+            return;
+        } else if (e.key === 'Escape') {
+            hideSuggestions(); return;
+        } else { return; }
+        $items.removeClass('active').eq(suggestionIndex).addClass('active');
+        if (suggestionIndex >= 0) $('#query').val($items.eq(suggestionIndex).text());
+    });
+
+    // Hide suggestions when clicking outside
+    $(document).on('mousedown', function (e) {
+        if (!$(e.target).closest('.search-wrapper').length) hideSuggestions();
+    });
+
+    // Search
+    async function searchTorrents() {
+        const query = $('#query').val().trim();
+        const website = $('#website').val();
+        const page = $('#page').val();
+        if (!website || !query) return;
+
+        hideSuggestions();
+        $('#spinner-container').show();
+        $('#results').empty();
+        $('#sort-bar').removeClass('visible');
+        $('#results-info').hide();
+
+        let apiUrl = `/api/${encodeURIComponent(website)}/${encodeURIComponent(query)}`;
+        if (page) apiUrl += `/${page}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+
+            if (!data || data.length === 0) {
+                $('#results').html('<div class="text-center col-12">No results found.</div>');
+                return;
+            }
+
+            allResults = data;
+            renderResults();
+            $('#sort-bar').addClass('visible');
+        } catch {
+            $('#results').html('<div class="text-center text-danger col-12">Failed to load results.</div>');
+        } finally {
+            $('#spinner-container').hide();
+        }
+    }
+
+    // Sorting
+    $('#sort-bar').on('click', '.sort-btn', function () {
+        const key = $(this).data('sort');
+        if (currentSort.key === key) {
+            currentSort.dir = currentSort.dir === 'desc' ? 'asc' : 'desc';
+        } else {
+            currentSort = { key, dir: key === 'name' ? 'asc' : 'desc' };
+        }
+        $('#sort-bar .sort-btn').removeClass('active').find('.arrow').text('▼');
+        $(this).addClass('active').find('.arrow').text(currentSort.dir === 'desc' ? '▼' : '▲');
+        renderResults();
+    });
+
+    function parseSize(str) {
+        if (!str) return 0;
+        const s = str.replace(/,/g, '').replace(/&nbsp;/g, ' ').trim();
+        const m = s.match(/([\d.]+)\s*(TB|GB|MB|KB|B)/i);
+        if (!m) return 0;
+        const n = parseFloat(m[1]);
+        const u = m[2].toUpperCase();
+        return n * ({ TB: 1e12, GB: 1e9, MB: 1e6, KB: 1e3, B: 1 }[u] || 1);
+    }
+
+    function renderResults() {
+        const sorted = [...allResults].sort((a, b) => {
+            let va, vb;
+            if (currentSort.key === 'seeders') {
+                va = parseInt(a.Seeders) || 0; vb = parseInt(b.Seeders) || 0;
+            } else if (currentSort.key === 'leechers') {
+                va = parseInt(a.Leechers) || 0; vb = parseInt(b.Leechers) || 0;
+            } else if (currentSort.key === 'size') {
+                va = parseSize(a.Size); vb = parseSize(b.Size);
+            } else {
+                va = (a.Name || '').toLowerCase(); vb = (b.Name || '').toLowerCase();
+                return currentSort.dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+            }
+            return currentSort.dir === 'desc' ? vb - va : va - vb;
         });
 
-        async function searchTorrents() {
-            const query = $('#query').val();
-            const website = $('#website').val();
-            const page = $('#page').val();
-            const resultsDiv = $('#results');
-            const spinnerContainer = $('#spinner-container');
+        const $results = $('#results').empty();
+        const $info = $('#results-info');
+        $info.text(`${sorted.length} result${sorted.length !== 1 ? 's' : ''}`).show();
 
-            if (!website || !query) return;
-
-            spinnerContainer.show();
-
-            let apiUrl = `/api/${website}/${query}`;
-            if (page) {
-                apiUrl += `/${page}`;
-            }
-
-            try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-
-                if (!data || data.length === 0) {
-                    resultsDiv.html('<div class="text-center col-12">No results found.</div>');
-                    return;
-                }
-
-                resultsDiv.empty();
-
-                data.forEach(torrent => {
-                    const magnet = torrent.Magnet || torrent.MagnetLink || '';
-                    const poster = torrent.Poster ? `<img src="${torrent.Poster}" alt="${torrent.Name}">` : '';
-                    resultsDiv.append(
-                        `<div class="movie-card">
-                            ${poster}
-                            <div class="movie-details">
-                                <h5>${torrent.Name || torrent.Title || 'N/A'}</h5>
-                                <p><strong>Size:</strong> ${torrent.Size || 'N/A'}</p>
-                                <p><strong>Seeders:</strong> ${torrent.Seeders || 'N/A'} | <strong>Leechers:</strong> ${torrent.Leechers || 'N/A'}</p>
-                                <div class="button-container">
-                                    ${magnet ? `<a href="${magnet}" class="btn-custom">Magnet</a>` : ''}
-                                    ${torrent.Url ? `<a href="${torrent.Url}" class="btn-custom" target="_blank">View</a>` : ''}
-                                </div>
-                            </div>
-                        </div>`
-                    );
-                });
-            } catch (error) {
-                resultsDiv.html('<div class="text-center text-danger col-12">Failed to load results.</div>');
-            } finally {
-                spinnerContainer.hide();
-            }
-        }
+        sorted.forEach(torrent => {
+            const magnet = torrent.Magnet || torrent.MagnetLink || '';
+            const poster = torrent.Poster ? `<img src="${torrent.Poster}" alt="${torrent.Name}">` : '';
+            $results.append(
+                `<div class="movie-card">
+                    ${poster}
+                    <div class="movie-details">
+                        <h5 title="${torrent.Name || ''}">${torrent.Name || 'N/A'}</h5>
+                        <p><strong>Size:</strong> ${torrent.Size || 'N/A'}</p>
+                        <p><strong>Seeds:</strong> ${torrent.Seeders || 'N/A'} &nbsp;|&nbsp; <strong>Leech:</strong> ${torrent.Leechers || 'N/A'}</p>
+                        <div class="button-container">
+                            ${magnet ? `<a href="${magnet}" class="btn-custom">Magnet</a>` : ''}
+                            ${torrent.Url ? `<a href="${torrent.Url}" class="btn-custom" target="_blank">View</a>` : ''}
+                        </div>
+                    </div>
+                </div>`
+            );
+        });
+    }
     </script>
 
 </body>
