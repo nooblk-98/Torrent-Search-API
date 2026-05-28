@@ -335,6 +335,18 @@ header h1 {
     let suggestTimer = null;
     let suggestionIndex = -1;
 
+    function copyMagnet(btn, magnet) {
+        navigator.clipboard.writeText(magnet).then(() => {
+            const orig = btn.textContent;
+            btn.textContent = 'Copied!';
+            btn.style.backgroundColor = '#28a745';
+            setTimeout(() => {
+                btn.textContent = orig;
+                btn.style.backgroundColor = '';
+            }, 2000);
+        });
+    }
+
     // Load providers
     $(async function () {
         const $select = $('#website');
@@ -510,7 +522,7 @@ header h1 {
                         <p><strong>Size:</strong> ${torrent.Size || 'N/A'}</p>
                         <p><strong>Seeds:</strong> ${torrent.Seeders || 'N/A'} &nbsp;|&nbsp; <strong>Leech:</strong> ${torrent.Leechers || 'N/A'}</p>
                         <div class="button-container">
-                            ${magnet ? `<a href="${magnet}" class="btn-custom">Magnet</a>` : ''}
+                            ${magnet ? `<button class="btn-custom" onclick="copyMagnet(this, ${JSON.stringify(magnet)})">Copy Magnet</button>` : ''}
                             ${torrent.Url ? `<a href="${torrent.Url}" class="btn-custom" target="_blank">View</a>` : ''}
                         </div>
                     </div>
