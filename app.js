@@ -1,4 +1,5 @@
 const express = require('express');
+const axios = require('axios');
 const combo = require("./torrent/COMBO")
 const path = require('path');
 
@@ -35,6 +36,28 @@ app.use('/api/:website/:query/:page?', (req, res, next) => {
 
 app.get("/api/torrents", (req, res) => {
     res.json(Object.keys(torrents))
+})
+
+app.get("/api/suggest", async (req, res) => {
+    const q = (req.query.q || '').trim();
+    if (!q) return res.json([]);
+    try {
+        const resp = await axios.get(`https://apibay.org/q.php?q=${encodeURIComponent(q)}&cat=0`, { timeout: 5000 });
+        const seen = new Set();
+        const suggestions = [];
+        for (const item of resp.data) {
+            if (!item.name || item.name === 'No results returned') continue;
+            const label = item.name.split(' ').slice(0, 5).join(' ');
+            if (!seen.has(label.toLowerCase())) {
+                seen.add(label.toLowerCase());
+                suggestions.push(label);
+            }
+            if (suggestions.length >= 8) break;
+        }
+        res.json(suggestions);
+    } catch {
+        res.json([]);
+    }
 })
 
 app.use('/', (req, res) => {
