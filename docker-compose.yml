@@ -10,16 +10,50 @@ services:
     environment:
       - LOG_LEVEL=info
       - TZ=UTC
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8191/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - torrent-network
 
   app:
-    build: .
+    build:
+      context: .
+      target: production
     container_name: torrent-search-api
     restart: unless-stopped
     ports:
       - "3001:3001"
     environment:
+      - NODE_ENV=production
       - PORT=3001
       - USE_FLARESOLVERR=true
       - FLARESOLVERR_URL=http://flaresolverr:8191/v1
+      - LOG_LEVEL=info
+      - CORS_ORIGIN=*
     depends_on:
-      - flaresolverr
+      flaresolverr:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/api/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - torrent-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+networks:
+  torrent-network:
+    driver: bridge
