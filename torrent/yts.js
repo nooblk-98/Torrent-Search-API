@@ -4,12 +4,13 @@ const request = require('./request');
 
 async function yts(query, page = '1') {
 
-    let all = []
-    let ALLURL = [];
+    const all = []
+    const ALLURL = [];
+    let url;
     if (page === '' || page === '1') {
-        var url = "https://yts.lu/browse-movies/" + query + "/all/all/0/latest/0/all"
+        url = "https://yts.lu/browse-movies/" + query + "/all/all/0/latest/0/all"
     } else {
-        var url = "https://yts.lu/browse-movies/" + query + "/all/all/0/latest/0/all?page=" + page;
+        url = "https://yts.lu/browse-movies/" + query + "/all/all/0/latest/0/all?page=" + page;
     }
     let html;
     try {
@@ -24,7 +25,7 @@ async function yts(query, page = '1') {
 
     const $ = cheerio.load(html.data);
     $('div.browse-movie-bottom').each((_, element) => {
-        let url = $(element).find('a').attr('href');
+        const url = $(element).find('a').attr('href');
         ALLURL.push(url);
     })
 
@@ -66,7 +67,7 @@ async function yts(query, page = '1') {
 
         $('.modal-download > div:nth-child(1) div.modal-content').each((i, el) => {
             $('div.modal-torrent').each((_, ele) => {
-                let files = {};
+                const files = {};
                 files.Quality = $(ele).find(':nth-child(1) >span').text();;
                 files.Type = $(ele).find(':nth-child(2)').text();
                 files.Size = $(ele).find(':nth-child(5)').text();

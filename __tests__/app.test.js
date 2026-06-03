@@ -15,8 +15,10 @@ describe('API Endpoints', () => {
       expect(res.body.status).toBe('healthy');
       expect(res.body).toHaveProperty('timestamp');
       expect(res.body).toHaveProperty('providers');
+      expect(res.body.providers).toHaveProperty('health');
       expect(res.body).toHaveProperty('cache');
       expect(res.body).toHaveProperty('uptime');
+      expect(res.body).toHaveProperty('inflight');
     });
   });
 

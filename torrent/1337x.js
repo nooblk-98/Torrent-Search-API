@@ -55,7 +55,7 @@ async function torrent1337x(query = '', page = '1') {
         }
 
         $('div .clearfix ul li > span').each((i, element) => {
-            $list = $(element);
+            const $list = $(element);
             data[labels[i]] = $list.text();
         })
         data.Url = element

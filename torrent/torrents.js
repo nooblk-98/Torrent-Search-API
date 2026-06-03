@@ -3,7 +3,7 @@ const fs = require('fs');
 const logger = require('../lib/logger');
 
 // Known broken/discontinued providers to ignore
-let ignored = [
+const ignored = [
     'torrents.js',
     'COMBO.js',
     'request.js',
@@ -24,12 +24,12 @@ function getTorrents() {
     const torrents = {};
     const failed = [];
 
-    for (let torrentFile of torrentFiles) {
+    for (const torrentFile of torrentFiles) {
         // Only load .js files
         if (!torrentFile.endsWith('.js')) continue;
 
         try {
-            let torrent = require(`./${torrentFile}`);
+            const torrent = require(`./${torrentFile}`);
 
             // Skip if not a function
             if (typeof torrent !== 'function') {
@@ -37,7 +37,7 @@ function getTorrents() {
                 continue;
             }
 
-            let torrentName = (torrent?.customName ?? torrentFile.split('.').shift()).toLowerCase();
+            const torrentName = (torrent?.customName ?? torrentFile.split('.').shift()).toLowerCase();
 
             // Validate name
             if (!/^[a-z0-9_-]+$/.test(torrentName)) {

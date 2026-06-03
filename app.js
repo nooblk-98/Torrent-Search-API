@@ -9,10 +9,14 @@ const combo = require('./torrent/COMBO');
 const config = require('./config');
 const logger = require('./lib/logger');
 const cache = require('./lib/cache');
+const swrCache = require('./lib/swrCache');
+const singleflight = require('./lib/singleflight');
+const providerHealth = require('./lib/providerHealth');
+const withTimeout = require('./lib/withTimeout');
 const { searchParamsSchema, suggestionParamsSchema } = require('./lib/validation');
 
 const path = require('path');
-let torrents = require('./torrent/torrents')();
+const torrents = require('./torrent/torrents')();
 
 const app = express();
 
@@ -117,12 +121,14 @@ app.get('/api/health', async (req, res) => {
         providers: {
             available: providerNames,
             count: providerNames.length,
+            health: providerHealth.snapshot(),
         },
         cache: {
             keys: cacheStats.keys,
             hits: cacheStats.hits,
             misses: cacheStats.misses,
         },
+        inflight: singleflight.size(),
         environment: config.nodeEnv,
     });
 });
@@ -173,14 +179,16 @@ app.get('/api/suggest', async (req, res) => {
     }
 
     try {
-        const resp = await axios.get(
-            `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}`,
-            { timeout: 5000, headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.0.36' } }
-        );
-        const suggestions = (resp.data[1] || []).slice(0, 8);
-
-        // Cache for 1 hour
-        cache.set(cacheKey, suggestions, 3600);
+        // Deduplicate concurrent identical lookups.
+        const suggestions = await singleflight.run(cacheKey, async () => {
+            const resp = await axios.get(
+                `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(q)}`,
+                { timeout: 5000, headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.0.36' } }
+            );
+            const list = (resp.data[1] || []).slice(0, 8);
+            cache.set(cacheKey, list, 3600); // Cache for 1 hour
+            return list;
+        });
         res.json(suggestions);
     } catch (err) {
         logger.warn('Suggestions fetch failed', { query: q, error: err.message });
@@ -236,38 +244,64 @@ app.get('/api/:provider/:query/:page?', async (req, res) => {
     }
 
     const { provider, query, page } = validation.data;
-    const cacheKey = `search:${provider}:${query}:${page}`;
 
-    // Check cache (skip cache for development if needed)
-    const cached = cache.get(cacheKey);
-    if (cached && config.nodeEnv !== 'development') {
-        logger.debug('Cache hit', { cacheKey });
-        return res.json(cached);
+    // Reject unknown single providers early (before touching cache).
+    if (provider !== 'all' && !torrents[provider]) {
+        return res.status(404).json({
+            error: `Provider "${provider}" not found`,
+            availableProviders: Object.keys(torrents),
+        });
     }
 
-    try {
-        let results;
+    const cacheKey = `search:${provider}:${query}:${page}`;
+    const bypassCache = config.nodeEnv === 'development';
 
+    // Performs the actual scrape, deduplicated across concurrent callers.
+    const fetchResults = () => singleflight.run(cacheKey, async () => {
+        let results;
         if (provider === 'all') {
             results = await combo(query, String(page));
-        } else if (torrents[provider]) {
-            results = await torrents[provider](query, String(page));
         } else {
-            const availableProviders = Object.keys(torrents);
-            return res.status(404).json({
-                error: `Provider "${provider}" not found`,
-                availableProviders,
-            });
+            const startTime = Date.now();
+            try {
+                results = await withTimeout(
+                    Promise.resolve(torrents[provider](query, String(page))),
+                    config.providers.perProviderTimeout,
+                    `provider:${provider}`
+                );
+                providerHealth.recordSuccess(provider, Date.now() - startTime);
+            } catch (err) {
+                providerHealth.recordFailure(provider, err.message, Date.now() - startTime);
+                throw err;
+            }
         }
 
-        // Filter out invalid results
         const validResults = Array.isArray(results)
             ? results.filter(r => r && r.Name && r.Name.trim() !== '')
             : [];
 
-        // Cache results (5 minutes TTL)
-        cache.set(cacheKey, validResults);
+        swrCache.setEntry(cacheKey, validResults);
+        return validResults;
+    });
 
+    try {
+        if (!bypassCache) {
+            const { value, state } = swrCache.getEntry(cacheKey);
+            if (state === 'fresh') {
+                logger.debug('Cache hit (fresh)', { cacheKey });
+                return res.json(value);
+            }
+            if (state === 'stale') {
+                // Serve stale immediately, refresh in the background.
+                logger.debug('Cache hit (stale), revalidating', { cacheKey });
+                fetchResults().catch(err =>
+                    logger.warn('Background revalidate failed', { cacheKey, error: err.message })
+                );
+                return res.json(value);
+            }
+        }
+
+        const validResults = await fetchResults();
         res.json(validResults);
     } catch (err) {
         logger.error('Search failed', {

@@ -23,9 +23,9 @@ async function limeTorrent(query, page = '1') {
         if (i > 0) {
             let category_and_age = $(element).find('td').eq(1).text().trim();
             category_and_age = category_and_age.split('-');
-            let age = category_and_age[0].trim();
-            let category = category_and_age[1].replace('in', '').trim();
-            let torrent = {
+            const age = category_and_age[0].trim();
+            const category = category_and_age[1].replace('in', '').trim();
+            const torrent = {
                 "Name": $(element).find('div.tt-name').text().trim(),
                 "Size": $(element).find('td').eq(2).text().trim(),
                 "Category": category,
