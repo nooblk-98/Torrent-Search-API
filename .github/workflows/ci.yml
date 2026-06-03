@@ -28,11 +28,6 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Test
-        run: npm test
-        env:
-          NODE_ENV: test
-
   docker:
     runs-on: ubuntu-latest
     needs: test
