@@ -7,8 +7,10 @@ async function glodls(query, page = '0') {
     const url = `https://glodls.to/search_results.php?search=${query}&sort=seeders&order=desc&page=${page}`;
     let html;
     try {
-        html = await axios.get(url, headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36"
+        html = await axios.get(url, {
+            headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36"
+            }
         });
 
     } catch {
@@ -21,7 +23,7 @@ async function glodls(query, page = '0') {
     $('.ttable_headinner tr').each((_, element) => {
 
 
-        let torrent = {
+        const torrent = {
             'Name': $(element).find('td').eq(1).find('a').text().trim(),
             'Size': $(element).find('td').eq(4).text(),
             'UploadedBy' : $(element).find('td').eq(7).find('a b font').text(),

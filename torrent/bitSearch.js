@@ -23,7 +23,7 @@ async function bitSearch(query, page = '1') {
         const $meta = $card.find('.flex-wrap.mb-3 .inline-flex');
         const $stats = $card.find('.gap-4.text-sm');
 
-        let torrent = {
+        const torrent = {
             'Name': $(element).text().trim(),
             'Size': $meta.eq(1).find('span').last().text().trim(),
             'DateUploaded': $meta.eq(2).find('span').last().text().trim(),

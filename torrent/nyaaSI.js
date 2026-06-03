@@ -3,7 +3,7 @@ const axios = require('axios');
 
 
 async function nyaaSI(query, page = '1') {
-    let torrents = [];
+    const torrents = [];
     const url = 'https://nyaa.si/?f=0&c=0_0&q=' + query + '&p=' + page;
     let html = null;
     try {

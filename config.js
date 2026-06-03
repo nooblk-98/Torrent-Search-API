@@ -34,12 +34,25 @@ const config = {
     stdTTL: 300, // 5 minutes default
     checkperiod: 60, // check for expired keys every 60 seconds
     maxKeys: 1000,
+    // Stale-while-revalidate: how long (seconds) a cached entry remains
+    // servable as "stale" after its fresh TTL expires, while a background
+    // refresh runs. Total lifetime of a key ≈ stdTTL + staleTTL.
+    staleTTL: 600,
   },
 
   // Providers
   providers: {
     timeout: 30000,
     maxConcurrent: 5,
+    // Per-provider hard timeout inside a combo search (ms). One dead site
+    // shouldn't block the whole response.
+    perProviderTimeout: parseInt(process.env.PROVIDER_TIMEOUT || '8000', 10),
+  },
+
+  // Circuit breaker (per provider)
+  circuitBreaker: {
+    failureThreshold: parseInt(process.env.CB_FAILURE_THRESHOLD || '5', 10),
+    cooldownMs: parseInt(process.env.CB_COOLDOWN_MS || '60000', 10),
   },
 
   // CORS

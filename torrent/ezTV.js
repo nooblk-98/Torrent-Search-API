@@ -3,7 +3,7 @@ const request = require('./request');
 
 
 async function ezTV(query) {
-    let allTorrents = [];
+    const allTorrents = [];
     const url = 'https://eztv.wf/search/' + query;
     let html;
     try {
@@ -19,7 +19,7 @@ async function ezTV(query) {
         const url = $(element).find('td').eq(1).find('a').attr('href') || ''
         const name = $(element).find('td').eq(1).find('a').text() || ''
         if (url !== '' || name !== '') {
-            let torrent = {
+            const torrent = {
                 'Name': name,
                 'Size': $(element).find('td').eq(3).text(),
                 'DateUploaded': $(element).find('td').eq(4).text(),
