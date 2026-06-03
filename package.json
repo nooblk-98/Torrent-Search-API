@@ -1,6 +1,6 @@
 {
   "name": "Torrent-Search-API",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "main": "app.js",
   "scripts": {
     "test": "jest --coverage",
@@ -9,7 +9,12 @@
     "start-server": "node app.js",
     "lint": "eslint ."
   },
-  "keywords": ["torrent", "search", "api", "scraping"],
+  "keywords": [
+    "torrent",
+    "search",
+    "api",
+    "scraping"
+  ],
   "contributors": [
     {
       "name": "AirplaneGobrr",
